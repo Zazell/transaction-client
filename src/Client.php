@@ -1,42 +1,46 @@
 <?php
 namespace Digiwallet\Packages\Transaction\Client;
 
-use Psr\Http\Message\RequestInterface as Request;
-use GuzzleHttp\ClientInterface as GuzzleClient;
-use Psr\Http\Message\ResponseInterface as Response;
+use Digiwallet\Packages\Transaction\Client\Request\CheckTransactionInterface as CheckTransaction;
+use Digiwallet\Packages\Transaction\Client\Request\CreateTransactionInterface as CreateTransaction;
+use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\GuzzleException;
+use Psr\Http\Message\RequestInterface as Request;
+use Psr\Http\Message\ResponseInterface as Response;
 
 /**
  * Class Client
  * @package Digiwallet\Packages\Transaction\Client
  */
-class Client implements ClientInterface
+class Client extends GuzzleClient implements ClientInterface
 {
     /**
-     * @var GuzzleClient
-     */
-    private $client;
-
-    /**
      * Client constructor.
-     * @param GuzzleClient $client
+     * @param CreateTransaction $createTransaction
+     * @param CheckTransaction $checkTransaction
      */
-    public function __construct(GuzzleClient $client)
+    public function __construct(CreateTransaction $createTransaction, CheckTransaction $checkTransaction)
     {
-        $this->client = $client;
+        parent::__construct();
     }
 
     /**
      * @param Request $request
      * @return Response
      */
-    public function doRequest(Request $request): Response
+    private function doRequest(Request $request): Response
     {
         try {
-            $response = $this->client->send($request);
+            $response = $this->send($request);
 
         } catch (GuzzleException $exception) {
 
         }
+    }
+
+
+    public function createTransaction()
+    {
+
     }
 }
