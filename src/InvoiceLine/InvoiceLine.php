@@ -10,11 +10,13 @@ class InvoiceLine implements InvoiceLineInterface
     public const VAT_HIGH = 1;
     public const VAT_LOW = 2;
     public const VAT_NULL = 3;
+    public const VAT_NONE = 4;
 
     public const VAT_TYPES = [
         self::VAT_HIGH,
         self::VAT_LOW,
-        self::VAT_NULL
+        self::VAT_NULL,
+        self::VAT_NONE
     ];
 
     /**
@@ -102,5 +104,19 @@ class InvoiceLine implements InvoiceLineInterface
     public function taxCategory(): int
     {
         return $this->taxCategory;
+    }
+
+    /**
+     * @return array
+     */
+    public function jsonSerialize(): array
+    {
+        return  [
+            'productCode' => $this->productCode,
+            'productDescription' => $this->productDescription,
+            'quantity' => $this->quantity,
+            'price' => $this->price,
+            'taxCategory' => $this->taxCategory,
+        ];
     }
 }

@@ -1,11 +1,13 @@
 <?php
 namespace Digiwallet\Packages\Transaction\Client\InvoiceLine;
 
+use JsonSerializable;
+
 /**
  * Interface InvoiceLineInterface
  * @package Digiwallet\Packages\Transaction\Client\InvoiceLine
  */
-interface InvoiceLineInterface
+interface InvoiceLineInterface extends JsonSerializable
 {
     /**
      * @return string

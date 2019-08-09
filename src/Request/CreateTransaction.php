@@ -1,8 +1,11 @@
 <?php
 namespace Digiwallet\Packages\Transaction\Client\Request;
 
-use GuzzleHttp\Psr7\Request;
+use Digiwallet\Packages\Transaction\Client\ClientInterface as TransactionClient;
 use Digiwallet\Packages\Transaction\Client\InvoiceLine\InvoiceLineInterface as InvoiceLine;
+use Digiwallet\Packages\Transaction\Client\Response\CreateTransaction as CreateTransactionResponse;
+use Digiwallet\Packages\Transaction\Client\Response\CreateTransactionInterface as CreateTransactionResponseInterface;
+use GuzzleHttp\Psr7\Request;
 use function GuzzleHttp\Psr7\stream_for;
 
 /**
@@ -11,7 +14,7 @@ use function GuzzleHttp\Psr7\stream_for;
  */
 class CreateTransaction extends Request implements CreateTransactionInterface
 {
-    private const DIGIWALLET_PAY_CREATE_TRANSACTION_URL = 'https://api.digiwallet.nl/unified/transaction';
+    private const DIGIWALLET_PAY_CREATE_TRANSACTION_PATH = '/unified/transaction';
     private const DIGIWALLET_PAY_CREATE_TRANSACTION_HTTP_METHOD = 'POST';
 
     private const PAYMENT_METHODS = [
@@ -41,7 +44,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
      * @var array
      */
     private $options = [
-        'outletID' => null,
+        'outletId' => null,
         'currencyCode' => 'EUR',
         'consumerEmail' => null,
         'description' => null,
@@ -55,15 +58,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
         'inputAmount' => null,
         'inputAmountMin' => null,
         'inputAmountMax' => null,
-
-        'enabledAfterPay' => false,
-        'enabledCreditCard' => false,
-        'enabledIdeal' => false,
-        'enabledBancontact' => false,
-        'enabledPaysafeCard' => false,
-        'enabledPayPal' => false,
-        'enabledSofort' => false,
-
+        'paymentMethods' => [],
         'test' => 0,
         'acquirerPreprodTest' => 0
     ];
@@ -75,37 +70,12 @@ class CreateTransaction extends Request implements CreateTransactionInterface
 
     /**
      * CreateTransaction constructor.
-     * @param string $bearer
-     * @param int $outletId
+     * @param CreateTransactionResponse $response
      * @param array $options
      */
-    public function __construct(string $bearer, int $outletId, array $options = [])
+    public function __construct(array $options = [])
     {
-        $this->options['outletID'] = $outletId;
-
         $this->withOptions($options);
-
-        parent::__construct(
-            self::DIGIWALLET_PAY_CREATE_TRANSACTION_HTTP_METHOD,
-            self::DIGIWALLET_PAY_CREATE_TRANSACTION_URL,
-            [
-                'Authorization' => 'Bearer ' . $bearer,
-                'Content-Type' => 'application/json'
-            ]
-        );
-    }
-
-    /**
-     * @param InvoiceLine $invoiceLine
-     * @return CreateTransaction
-     */
-    public function withInvoiceLine(InvoiceLine $invoiceLine): self
-    {
-        if (!in_array($invoiceLine, $this->invoiceLines, true)) {
-            $this->invoiceLines[] = $invoiceLine;
-        }
-
-        return $this;
     }
 
     /**
@@ -132,126 +102,193 @@ class CreateTransaction extends Request implements CreateTransactionInterface
     /**
      * @param string $description
      */
-    public function withDescription(string $description): void
+    public function withDescription(string $description): CreateTransactionInterface
     {
         $this->options['description'] = $description;
-        $this->updateBody();
+        return $this->updateBody();
     }
 
     /**
      * @param string $suggestedLanguage
      */
-    public function withSuggestedLanguage(string $suggestedLanguage): void
+    public function withLanguagePreference(string $preferedLanguage): CreateTransactionInterface
     {
         $this->options['suggestedLanguage'] = $suggestedLanguage;
-        $this->updateBody();
+        return $this->updateBody();
     }
 
     /**
      * @param string $consumerEmail
      */
-    public function withConsumerEmail(string $consumerEmail): void
+    public function withConsumerEmail(string $consumerEmail): CreateTransactionInterface
     {
         $this->options['consumerEmail'] = $consumerEmail;
-        $this->updateBody();
+        return $this->updateBody();
     }
 
     /**
      * @param string $consumerIp
      */
-    public function withConsumerIp(string $consumerIp): void
+    public function withConsumerIp(string $consumerIp): CreateTransactionInterface
     {
-        $this->options['consumerIP'] = $consumerIp;
-        $this->updateBody();
+        $this->options['consumerIp'] = $consumerIp;
+        return $this->updateBody();
     }
 
     /**
      * @param string $reportUrl
      */
-    public function withReportUrl(string $reportUrl): void
+    public function withReportUrl(string $reportUrl): CreateTransactionInterface
     {
-        $this->options['reportURL'] = $reportUrl;
-        $this->updateBody();
+        $this->options['reportUrl'] = $reportUrl;
+        return $this->updateBody();
     }
 
     /**
      * @param string $cancelURL
      */
-    public function withCancelUrl(string $cancelURL): void
+    public function withCancelUrl(string $cancelURL): CreateTransactionInterface
     {
-        $this->options['cancelURL'] = $cancelURL;
-        $this->updateBody();
+        $this->options['cancelUrl'] = $cancelURL;
+        return $this->updateBody();
     }
 
     /**
      * @param string $currencyCode
      */
-    public function withCurrencyCode(string $currencyCode): void
+    public function withCurrency(string $currencyCode): CreateTransactionInterface
     {
         $this->options['currencyCode'] = $currencyCode;
-        $this->updateBody();
+        return $this->updateBody();
     }
 
     /**
+     * in case of transaction with variable amount, specify both $amount and $maxAmount. This excludes Afterpay.
+     * Both amounts should be in cents so for 1 euro you should enter 100
      * @param int $amount
+     * @param int|null $maxAmount
+     * @return CreateTransactionInterface
      */
-    public function withAmount(int $amount): void
+    public function withAmount(int $amount, int $maxAmount = null): CreateTransactionInterface
     {
-        $this->options['amountChangeable'] = false;
         $this->options['inputAmount'] = $amount;
-        $this->options['inputAmountMin'] = null;
-        $this->options['inputAmountMax'] = null;
-        $this->updateBody();
-    }
-
-    /**
-     * @param int $min
-     * @param int $max
-     */
-    public function withAmountChangeable(int $min, int $max): void
-    {
-        $this->options['amountChangeable'] = false;
-        $this->options['inputAmount'] = null;
-        $this->options['inputAmountMin'] = $min;
-        $this->options['inputAmountMax'] = $max;
-        $this->updateBody();
+        $this->options['inputAmountMin'] = $amount;
+        $this->options['inputAmountMax'] = $maxAmount;
+        $this->options['amountChangeable'] = $maxAmount !== null;
+        return $this->updateBody();
     }
 
     /**
      * @param int $productTypeId
      * @return CreateTransaction
      */
-    public function withSofortProductTypeId(int $productTypeId): self
+    public function withProductType(int $productTypeId): CreateTransactionInterface
     {
+        $this->options['enabledSofort'] = true;
         $this->options['sofortProductTypeId'] = $productTypeId;
-    }
-
-    private function updateBody(): void
-    {
-        $body = $this->buildBody();
-        $stream = stream_for($body);
-        $this->withBody($stream);
+        return $this->updateBody();
     }
 
     /**
-     * @return array
+     * @param InvoiceLine $invoiceLine
+     * @return CreateTransaction
      */
-    private function buildBody(): array
+    public function withInvoiceLines(InvoiceLine $invoiceLines): CreateTransactionInterface
+    {
+        if (!in_array($invoiceLine, $this->invoiceLines, true)) {
+            $this->invoiceLines[] = $invoiceLine;
+        }
+
+        return $this->updateBody();
+    }
+
+    /**
+     * @param string[]|iterable $paymentMethods
+     * @return CreateTransactionInterface
+     */
+    public function withPaymentMethods(iterable $paymentMethods): CreateTransactionInterface
+    {
+        $this->options['paymentMethods'] = [];
+        foreach ($paymentMethods as $paymentMethod) {
+            $this->withPaymentMethod($paymentMethod);
+        }
+    }
+
+    /**
+     * @param string $paymentMethod
+     */
+    private function withPaymentMethod(string $paymentMethod): void
+    {
+        if (in_array($paymentMethod, self::PAYMENT_METHODS) && !in_array($paymentMethod, $this->options['paymentMethods'])) {
+            $this->options['paymentMethods'][] = $paymentMethod;
+        }
+    }
+
+    /**
+     * @param int $outletId
+     * @return CreateTransactionInterface
+     */
+    public function withOutlet(int $outletId): CreateTransactionInterface
+    {
+        $this->options['outletId'] = $outletId;
+        return $this->updateBody();
+    }
+
+    /**
+     * @param string $returnUrl
+     * @return CreateTransactionInterface
+     */
+    public function withReturnUrl(string $returnUrl): CreateTransactionInterface
+    {
+        $this->options['returnUrl'] = $returnUrl;
+        return $this->updateBody();
+    }
+
+    /**
+     * @return bool
+     */
+    public function validateRequest(): bool
+    {
+        switch (true) {
+            case empty($this->options['description']):
+            case $this->options['outletId'] < 1:
+            case empty($this->options['returnUrl']) || !filter_var($this->options['returnUrl'], FILTER_VALIDATE_URL):
+            case empty($this->options['inputAmount']) && (empty($this->options['inputAmountMin']) && empty($this->options['inputAmountMax'])):
+                return false;
+        }
+
+        if ($this->options['enabledSofort'] && empty($this->options['sofortProductTypeId'])) {
+            return false;
+        }
+
+        if ($this->options['enabledAfterPay'] && (empty($this->invoiceLines) || $this->options['amountChangeable'])) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @return CreateTransactionInterface
+     */
+    private function updateBody(): CreateTransactionInterface
     {
         $body = [
-            'outletID' => $this->options['currencyCode'],
+            'outletID' => $this->options['outletId'],
             'currencyCode' => $this->options['currencyCode'],
             'description' => $this->options['description'],
-            'returnURL' => $this->options['returnURL'],
-            'suggestedLanguage' => $this->options['suggestedLanguage'],
+            'returnURL' => $this->options['returnUrl'],
             'paymentOptions' => [
-                'amountChangeable' => $this->options['amountChangeable'],
-                'paymentMethods' => []
-            ],
+                'amountChangeable' => $this->options['amountChangeable']
+            ]
         ];
 
         if ($this->options['consumerEmail'] !== null) {
             $body['consumerEmail'] = $this->options['consumerEmail'];
+        }
+
+        if ($this->options['suggestedLanguage'] !== null) {
+            $body['suggestedLanguage'] = $this->options['suggestedLanguage'];
         }
 
         if ($this->options['reportUrl'] !== null) {
@@ -267,66 +304,44 @@ class CreateTransaction extends Request implements CreateTransactionInterface
         }
 
         if ($this->options['amountChangeable']) {
-            $body['inputAmount'] = $this->options['inputAmount'];
+            $body['paymentOptions']['inputAmountMin'] = $this->options['inputAmountMin'];
+            $body['paymentOptions']['inputAmountMax'] = $this->options['inputAmountMax'];
         }
 
         if (!$this->options['amountChangeable']) {
-            $body['inputAmountMin'] = $this->options['inputAmountMin'];
-            $body['inputAmountMax'] = $this->options['inputAmountMax'];
+            $body['paymentOptions']['inputAmount'] = $this->options['inputAmount'];
+        }
+
+        if (!empty($this->options['paymentMethods'])) {
+            $body['paymentOptions']['paymentMethods'] = $this->options['paymentMethods'];
         }
 
         if ($this->options['sofortProductTypeId'] !== null) {
             $body['sofortProductTypeID'] = $this->options['sofortProductTypeId'];
         }
 
-        if ($this->options['enabledAfterPay'] === true) {
-            $body['paymentOptions']['paymentMethods'][] = self::METHOD_AFTERPAY;
-        }
-
-        if ($this->options['enabledCreditCard'] === true) {
-            $body['paymentOptions']['paymentMethods'][] = self::METHOD_CREDITCARD;
-        }
-
-        if ($this->options['enabledIdeal'] === true) {
-            $body['paymentOptions']['paymentMethods'][] = self::METHOD_IDEAL;
-        }
-
-        if ($this->options['enabledBancontact'] === true) {
-            $body['paymentOptions']['paymentMethods'][] = self::METHOD_BANCONTACT;
-        }
-
-        if ($this->options['enabledPaysafeCard'] === true) {
-            $body['paymentOptions']['paymentMethods'][] = self::METHOD_PAYSAFECARD;
-        }
-
-        if ($this->options['enabledPayPal'] === true) {
-            $body['paymentOptions']['paymentMethods'][] = self::METHOD_PAYPAL;
-        }
-
-        if ($this->options['enabledSofort'] === true) {
-            $body['paymentOptions']['paymentMethods'][] = self::METHOD_SOFORT;
-        }
-
         if (!empty($this->invoiceLines)) {
             $body['afterpayInvoiceLines'] = $this->invoiceLines;
         }
 
-        return $body;
+        $stream = stream_for(json_encode($body));
+
+        return $this->withBody($stream);
     }
 
     /**
-     * @return bool
+     * @param TransactionClient $client
+     * @return CreateTransactionResponse
+     * @throws \GuzzleHttp\Exception\GuzzleException
      */
-    public function validateRequest(): bool
+    public function sendWith(TransactionClient $client): CreateTransactionResponseInterface
     {
-        switch (true) {
-            case empty($this->options['description']):
-            case $this->options['outletID'] < 1:
-            case empty($this->options['returnURL']) || !filter_var($this->options['returnURL'], FILTER_VALIDATE_URL):
-            case empty($this->options['inputAmount']) && (empty($this->options['inputAmountMin']) && empty($this->options['inputAmountMax'])):
-                return false;
-        }
+        parent::__construct(
+            self::DIGIWALLET_PAY_CREATE_TRANSACTION_HTTP_METHOD,
+            self::DIGIWALLET_PAY_CREATE_TRANSACTION_PATH
+        );
+        $response = $client->send($this);
 
-        return true;
+        return new CreateTransactionResponse($response);
     }
 }
