@@ -41,8 +41,6 @@ class CreateTransaction implements CreateTransactionInterface
         $this->message = $data['message'];
         $this->transactionId = $data['transactionID'];
         $this->launchUrl = $data['launchURL'];
-
-        return $this;
     }
 
     /**

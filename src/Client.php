@@ -3,9 +3,9 @@ namespace Digiwallet\Packages\Transaction\Client;
 
 use Digiwallet\Packages\Transaction\Client\Request\CheckTransactionInterface as CheckTransactionRequest;
 use Digiwallet\Packages\Transaction\Client\Request\CreateTransactionInterface as CreateTransactionRequest;
-use Digiwallet\Packages\Transaction\Client\Response\CheckTransactionInterface as CheckTransactionResponse;
-use Digiwallet\Packages\Transaction\Client\Response\CreateTransactionInterface as CreateTransactionResponse;
 use GuzzleHttp\Client as GuzzleClient;
+use GuzzleHttp\Exception\GuzzleException;
+use Psr\Http\Message\ResponseInterface as Response;
 
 /**
  * Class Client
@@ -30,26 +30,30 @@ class Client extends GuzzleClient implements ClientInterface
     }
 
     /**
-     * @param CreateTransactionRequest $request
-     * @return CreateTransactionResponse
+     * @param CreateTransactionRequest $createTransaction
+     * @return Response
+     * @throws GuzzleException
      */
-    public function createTransaction(CreateTransactionRequest $request): CreateTransactionResponse
+    public function createTransaction(CreateTransactionRequest $createTransaction): Response
     {
-        return $request
+        $request = $createTransaction
             ->withAddedHeader('Authorization', 'Bearer ' . $this->bearer)
-            ->withAddedHeader('Content-Type', 'application/json')
-            ->sendWith($this);
+            ->withAddedHeader('Content-Type', 'application/json');
+
+        return $this->send($request);
     }
 
     /**
-     * @param CheckTransactionRequest $request
-     * @return CheckTransactionResponse
+     * @param CheckTransactionRequest $checkTransaction
+     * @return Response
+     * @throws GuzzleException
      */
-    public function checkTransaction(CheckTransactionRequest $request): CheckTransactionResponse
+    public function checkTransaction(CheckTransactionRequest $checkTransaction): Response
     {
-        return $request
+        $request = $checkTransaction
             ->withAddedHeader('Authorization', 'Bearer ' . $this->bearer)
-            ->withAddedHeader('Content-Type', 'application/json')
-            ->sendWith($this);
+            ->withAddedHeader('Content-Type', 'application/json');
+
+        return $this->send($request);
     }
 }

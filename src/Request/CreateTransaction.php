@@ -1,8 +1,10 @@
 <?php
 namespace Digiwallet\Packages\Transaction\Client\Request;
 
+use BadMethodCallException;
 use Digiwallet\Packages\Transaction\Client\ClientInterface as TransactionClient;
 use Digiwallet\Packages\Transaction\Client\InvoiceLine\InvoiceLineInterface as InvoiceLine;
+use Digiwallet\Packages\Transaction\Client\Payment\Payment;
 use Digiwallet\Packages\Transaction\Client\Response\CreateTransaction as CreateTransactionResponse;
 use Digiwallet\Packages\Transaction\Client\Response\CreateTransactionInterface as CreateTransactionResponseInterface;
 use GuzzleHttp\Exception\GuzzleException;
@@ -18,24 +20,6 @@ class CreateTransaction extends Request implements CreateTransactionInterface
     private const DIGIWALLET_PAY_CREATE_TRANSACTION_PATH = '/unified/transaction';
     private const DIGIWALLET_PAY_CREATE_TRANSACTION_HTTP_METHOD = 'POST';
 
-    private const PAYMENT_METHODS = [
-        self::METHOD_AFTERPAY,
-        self::METHOD_CREDITCARD,
-        self::METHOD_IDEAL,
-        self::METHOD_BANCONTACT,
-        self::METHOD_PAYSAFECARD,
-        self::METHOD_PAYPAL,
-        self::METHOD_SOFORT,
-    ];
-
-    public const METHOD_AFTERPAY = 'AFP';
-    public const METHOD_CREDITCARD = 'CRC';
-    public const METHOD_IDEAL = 'IDE';
-    public const METHOD_BANCONTACT = 'MRC';
-    public const METHOD_PAYSAFECARD = 'PSC';
-    public const METHOD_PAYPAL = 'PYP';
-    public const METHOD_SOFORT = 'SOF';
-
     /**
      * @var array
      */
@@ -48,7 +32,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
         'reportUrl' => null,
         'cancelUrl' => null,
         'consumerIp' => null,
-        'suggestedLanguage' => null,
+        'preferredLanguage' => null,
         'sofortProductTypeId' => null,
         'amountChangeable' => false,
         'inputAmount' => null,
@@ -65,38 +49,24 @@ class CreateTransaction extends Request implements CreateTransactionInterface
     private $invoiceLines = [];
 
     /**
+     * @var TransactionClient
+     */
+    private $client;
+
+    /**
      * CreateTransaction constructor.
+     * @param TransactionClient $client
      * @param array $options
      */
-    public function __construct(array $options = [])
+    public function __construct(TransactionClient $client, array $options = [])
     {
         parent::__construct(
             self::DIGIWALLET_PAY_CREATE_TRANSACTION_HTTP_METHOD,
             self::DIGIWALLET_PAY_CREATE_TRANSACTION_PATH
         );
 
+        $this->client = $client;
         $this->withOptions($options);
-    }
-
-    /**
-     * @param array $options
-     */
-    private function withOptions(array $options): void
-    {
-        foreach ($options as $variable => $option) {
-            $this->withOption($variable, $option);
-        }
-    }
-
-    /**
-     * @param string $variable
-     * @param string $value
-     */
-    private function withOption(string $variable, string $value): void
-    {
-        if (isset($this->options[$variable]) && $this->options[$variable] !== $value) {
-            $this->options[$variable] = $value;
-        }
     }
 
     /**
@@ -105,8 +75,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
      */
     public function withDescription(string $description): CreateTransactionInterface
     {
-        $this->options['description'] = $description;
-        return $this;
+        return $this->withOption('description', $description);
     }
 
     /**
@@ -115,8 +84,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
      */
     public function withLanguagePreference(string $preferredLanguage): CreateTransactionInterface
     {
-        $this->options['suggestedLanguage'] = $preferredLanguage;
-        return $this;
+        return $this->withOption('preferredLanguage',  $preferredLanguage);
     }
 
     /**
@@ -125,8 +93,8 @@ class CreateTransaction extends Request implements CreateTransactionInterface
      */
     public function withConsumerEmail(string $consumerEmail): CreateTransactionInterface
     {
-        $this->options['consumerEmail'] = $consumerEmail;
-        return $this;
+
+        return $this->withOption('consumerEmail',  $consumerEmail);
     }
 
     /**
@@ -135,8 +103,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
      */
     public function withConsumerIp(string $consumerIp): CreateTransactionInterface
     {
-        $this->options['consumerIp'] = $consumerIp;
-        return $this;
+        return $this->withOption('consumerIp', $consumerIp);
     }
 
     /**
@@ -145,8 +112,16 @@ class CreateTransaction extends Request implements CreateTransactionInterface
      */
     public function withReportUrl(string $reportUrl): CreateTransactionInterface
     {
-        $this->options['reportUrl'] = $reportUrl;
-        return $this;
+        return $this->withOption('reportUrl', $reportUrl);
+    }
+
+    /**
+     * @param string $returnUrl
+     * @return CreateTransactionInterface
+     */
+    public function withReturnUrl(string $returnUrl): CreateTransactionInterface
+    {
+        return $this->withOption('returnUrl', $returnUrl);
     }
 
     /**
@@ -155,8 +130,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
      */
     public function withCancelUrl(string $cancelURL): CreateTransactionInterface
     {
-        $this->options['cancelUrl'] = $cancelURL;
-        return $this;
+        return $this->withOption('cancelUrl', $cancelURL);
     }
 
     /**
@@ -165,8 +139,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
      */
     public function withCurrency(string $currencyCode): CreateTransactionInterface
     {
-        $this->options['currencyCode'] = $currencyCode;
-        return $this;
+        return $this->withOption('currencyCode', $currencyCode);
     }
 
     /**
@@ -178,11 +151,11 @@ class CreateTransaction extends Request implements CreateTransactionInterface
      */
     public function withAmount(int $amount, int $maxAmount = null): CreateTransactionInterface
     {
-        $this->options['inputAmount'] = $amount;
-        $this->options['inputAmountMin'] = $amount;
-        $this->options['inputAmountMax'] = $maxAmount;
-        $this->options['amountChangeable'] = $maxAmount !== null;
-        return $this;
+        return $this
+            ->withOption('inputAmount', $amount)
+            ->withOption('inputAmountMin', $amount)
+            ->withOption('inputAmountMax', $maxAmount)
+            ->withOption('amountChangeable', $maxAmount);
     }
 
     /**
@@ -191,9 +164,9 @@ class CreateTransaction extends Request implements CreateTransactionInterface
      */
     public function withProductType(int $productTypeId): CreateTransactionInterface
     {
-        $this->options['enabledSofort'] = true;
-        $this->options['sofortProductTypeId'] = $productTypeId;
-        return $this;
+        return $this
+            ->withOption('enabledSofort', true)
+            ->withOption('sofortProductTypeId', $productTypeId);
     }
 
     /**
@@ -207,16 +180,6 @@ class CreateTransaction extends Request implements CreateTransactionInterface
         }
 
         return $this;
-    }
-
-    /**
-     * @param InvoiceLine $invoiceLine
-     */
-    private function withInvoiceLine(InvoiceLine $invoiceLine): void
-    {
-        if (!in_array($invoiceLine, $this->invoiceLines, true)) {
-            $this->invoiceLines[] = $invoiceLine;
-        }
     }
 
     /**
@@ -234,41 +197,18 @@ class CreateTransaction extends Request implements CreateTransactionInterface
     }
 
     /**
-     * @param string $paymentMethod
-     */
-    private function withPaymentMethod(string $paymentMethod): void
-    {
-        $exists = in_array($paymentMethod, self::PAYMENT_METHODS, true);
-        $notAdded = !in_array($paymentMethod, $this->options['paymentMethods'], true);
-        if ($exists && $notAdded) {
-            $this->options['paymentMethods'][] = $paymentMethod;
-        }
-    }
-
-    /**
      * @param int $outletId
      * @return CreateTransactionInterface
      */
     public function withOutlet(int $outletId): CreateTransactionInterface
     {
-        $this->options['outletId'] = $outletId;
-        return $this;
-    }
-
-    /**
-     * @param string $returnUrl
-     * @return CreateTransactionInterface
-     */
-    public function withReturnUrl(string $returnUrl): CreateTransactionInterface
-    {
-        $this->options['returnUrl'] = $returnUrl;
-        return $this;
+        return $this->withOption('outletId', $outletId);
     }
 
     /**
      * @return bool
      */
-    public function validateRequest(): bool
+    public function validate(): bool
     {
         switch (true) {
             case empty($this->options['description']):
@@ -290,9 +230,26 @@ class CreateTransaction extends Request implements CreateTransactionInterface
     }
 
     /**
+     * @return CreateTransactionResponseInterface
+     * @throws GuzzleException
+     * @throws BadMethodCallException
+     */
+    public function send(): CreateTransactionResponseInterface
+    {
+        if (!$this->validate()) {
+            throw new BadMethodCallException('Missing required options');
+        }
+
+        $request = $this->buildRequest();
+        $response = $this->client->createTransaction($request);
+
+        return new CreateTransactionResponse($response);
+    }
+
+    /**
      * @return CreateTransactionInterface
      */
-    private function buildBody(): CreateTransactionInterface
+    private function buildRequest(): CreateTransactionInterface
     {
         $body = [
             'outletID' => $this->options['outletId'],
@@ -308,8 +265,8 @@ class CreateTransaction extends Request implements CreateTransactionInterface
             $body['consumerEmail'] = $this->options['consumerEmail'];
         }
 
-        if ($this->options['suggestedLanguage'] !== null) {
-            $body['suggestedLanguage'] = $this->options['suggestedLanguage'];
+        if ($this->options['preferredLanguage'] !== null) {
+            $body['suggestedLanguage'] = $this->options['preferredLanguage'];
         }
 
         if ($this->options['reportUrl'] !== null) {
@@ -351,15 +308,48 @@ class CreateTransaction extends Request implements CreateTransactionInterface
     }
 
     /**
-     * @param TransactionClient $client
-     * @return CreateTransactionResponseInterface
-     * @throws GuzzleException
+     * @param InvoiceLine $invoiceLine
      */
-    public function sendWith(TransactionClient $client): CreateTransactionResponseInterface
+    private function withInvoiceLine(InvoiceLine $invoiceLine): void
     {
-        $request = $this->buildBody();
-        $response = $client->send($request);
+        if (!in_array($invoiceLine, $this->invoiceLines, true)) {
+            $this->invoiceLines[] = $invoiceLine;
+        }
+    }
 
-        return new CreateTransactionResponse($response);
+    /**
+     * @param string $paymentMethod
+     */
+    private function withPaymentMethod(string $paymentMethod): void
+    {
+        $exists = in_array($paymentMethod, Payment::METHODS, true);
+        $notAdded = !in_array($paymentMethod, $this->options['paymentMethods'], true);
+        if ($exists && $notAdded) {
+            $this->options['paymentMethods'][] = $paymentMethod;
+        }
+    }
+
+    /**
+     * @param array $options
+     */
+    public function withOptions(array $options): void
+    {
+        foreach ($options as $option => $value) {
+            $this->withOption($option, $value);
+        }
+    }
+
+    /**
+     * @param string $option
+     * @param string $value
+     * @return CreateTransaction
+     */
+    private function withOption(string $option, string $value): self
+    {
+        if (isset($this->options[$option]) && $this->options[$option] !== $value) {
+            $this->options[$option] = $value;
+        }
+
+        return $this;
     }
 }

@@ -3,8 +3,8 @@ namespace Digiwallet\Packages\Transaction\Client;
 
 use Digiwallet\Packages\Transaction\Client\Request\CheckTransactionInterface as CheckTransactionRequest;
 use Digiwallet\Packages\Transaction\Client\Request\CreateTransactionInterface as CreateTransactionRequest;
-use Digiwallet\Packages\Transaction\Client\Response\CreateTransactionInterface as CreateTransactionResponse;
-use Digiwallet\Packages\Transaction\Client\Response\CheckTransactionInterface as CheckTransactionResponse;
+use GuzzleHttp\Exception\GuzzleException;
+use Psr\Http\Message\ResponseInterface as Response;
 
 /**
  * Interface ClientInterface
@@ -14,13 +14,15 @@ interface ClientInterface extends \GuzzleHttp\ClientInterface
 {
     /**
      * @param CreateTransactionRequest $request
-     * @return CreateTransactionResponse
+     * @return Response
+     * @throws GuzzleException
      */
-    public function createTransaction(CreateTransactionRequest $request): CreateTransactionResponse;
+    public function createTransaction(CreateTransactionRequest $request): Response;
 
     /**
      * @param CheckTransactionRequest $request
-     * @return CheckTransactionResponse
+     * @return Response
+     * @throws GuzzleException
      */
-    public function checkTransaction(CheckTransactionRequest $request): CheckTransactionResponse;
+    public function checkTransaction(CheckTransactionRequest $request): Response;
 }

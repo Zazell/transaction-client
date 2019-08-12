@@ -1,9 +1,11 @@
 <?php
 namespace Digiwallet\Packages\Transaction\Client\Request;
 
-use Digiwallet\Packages\Transaction\Client\ClientInterface as TransactionClient;
+use BadMethodCallException;
 use Digiwallet\Packages\Transaction\Client\InvoiceLine\InvoiceLineInterface as InvoiceLine;
 use Digiwallet\Packages\Transaction\Client\Response\CreateTransactionInterface as CreateTransactionResponse;
+use Digiwallet\Packages\Transaction\Client\Response\CreateTransactionInterface as CreateTransactionResponseInterface;
+use GuzzleHttp\Exception\GuzzleException;
 use Psr\Http\Message\RequestInterface;
 
 /**
@@ -85,7 +87,7 @@ interface CreateTransactionInterface extends RequestInterface
     /**
      * @return bool
      */
-    public function validateRequest(): bool;
+    public function validate(): bool;
 
     /**
      * @param int $productTypeId
@@ -100,8 +102,9 @@ interface CreateTransactionInterface extends RequestInterface
     public function withInvoiceLines(array $invoiceLines): self;
 
     /**
-     * @param TransactionClient $client
-     * @return \Digiwallet\Packages\Transaction\Client\Response\CreateTransaction
+     * @return CreateTransactionResponseInterface
+     * @throws GuzzleException
+     * @throws BadMethodCallException
      */
-    public function sendWith(TransactionClient $client): CreateTransactionResponse;
+    public function send(): CreateTransactionResponse;
 }
