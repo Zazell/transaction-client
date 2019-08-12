@@ -6,9 +6,6 @@ use Digiwallet\Packages\Transaction\Client\Request\CreateTransactionInterface as
 use Digiwallet\Packages\Transaction\Client\Response\CheckTransactionInterface as CheckTransactionResponse;
 use Digiwallet\Packages\Transaction\Client\Response\CreateTransactionInterface as CreateTransactionResponse;
 use GuzzleHttp\Client as GuzzleClient;
-use GuzzleHttp\Exception\GuzzleException;
-use Psr\Http\Message\RequestInterface as Request;
-use Psr\Http\Message\ResponseInterface as Response;
 
 /**
  * Class Client
@@ -24,41 +21,35 @@ class Client extends GuzzleClient implements ClientInterface
     /**
      * Client constructor.
      * @param string $bearer
+     * @param string $url
      */
-    public function __construct(string $bearer, $digiwalletPayUrl = 'https://private-81d23-digiwallettransaction.apiary-mock.com')
+    public function __construct(string $bearer, string $url)
     {
+        parent::__construct(['base_uri' => $url]);
         $this->bearer = $bearer;
-        parent::__construct(['base_uri' => $digiwalletPayUrl]);
     }
 
     /**
-     * @param CreateTransactionRequest $createTransactionRequest
+     * @param CreateTransactionRequest $request
+     * @return CreateTransactionResponse
      */
-    public function createTransaction(CreateTransactionRequest $createTransactionRequest): CreateTransactionResponse
+    public function createTransaction(CreateTransactionRequest $request): CreateTransactionResponse
     {
-        try {
-            return $createTransactionRequest
-                ->withAddedHeader('Authorization', 'Bearer ' . $this->bearer)
-                ->withAddedHeader('Content-Type', 'application/json')
-                ->sendWith($this);
-        } catch (GuzzleException $exception) {
-            //do something!
-        }
+        return $request
+            ->withAddedHeader('Authorization', 'Bearer ' . $this->bearer)
+            ->withAddedHeader('Content-Type', 'application/json')
+            ->sendWith($this);
     }
 
     /**
-     * @param CheckTransactionRequest $checkTransactionRequest
+     * @param CheckTransactionRequest $request
+     * @return CheckTransactionResponse
      */
-    public function checkTransaction(CheckTransactionRequest $checkTransactionRequest): CheckTransactionResponse
+    public function checkTransaction(CheckTransactionRequest $request): CheckTransactionResponse
     {
-        try {
-            return $checkTransactionRequest
-                ->withAddedHeader('Authorization', 'Bearer ' . $this->bearer)
-                ->withAddedHeader('Content-Type', 'application/json')
-                ->sendWith($this);
-        } catch (GuzzleException $exception) {
-            //do something!
-            var_dump($exception->getMessage());die;
-        }
+        return $request
+            ->withAddedHeader('Authorization', 'Bearer ' . $this->bearer)
+            ->withAddedHeader('Content-Type', 'application/json')
+            ->sendWith($this);
     }
 }

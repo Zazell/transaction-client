@@ -1,7 +1,6 @@
 <?php
 namespace Digiwallet\Packages\Transaction\Client\Request;
 
-use Digiwallet\Packages\Transaction\Client\ClientInterface;
 use Digiwallet\Packages\Transaction\Client\ClientInterface as TransactionClient;
 use Digiwallet\Packages\Transaction\Client\InvoiceLine\InvoiceLineInterface as InvoiceLine;
 use Digiwallet\Packages\Transaction\Client\Response\CreateTransactionInterface as CreateTransactionResponse;
@@ -21,20 +20,23 @@ interface CreateTransactionInterface extends RequestInterface
      * @param int|null $maxAmount
      * @return CreateTransactionInterface
      */
-    public function withAmount(int $minAmount, int $amountMax): self;
+    public function withAmount(int $minAmount, int $maxAmount = null): self;
 
     /**
      * @param string $consumerEmail
+     * @return CreateTransactionInterface
      */
     public function withConsumerEmail(string $consumerEmail): self;
 
     /**
      * @param string $consumerIp
+     * @return CreateTransactionInterface
      */
     public function withConsumerIp(string $consumerIp): self;
 
     /**
      * @param string $currencyCode
+     * @return CreateTransactionInterface
      */
     public function withCurrency(string $currencyCode): self;
 
@@ -51,17 +53,20 @@ interface CreateTransactionInterface extends RequestInterface
     public function withOutlet(int $outletId): self;
 
     /**
-     * @param string $preferedLanguage
+     * @param string $preferredLanguage
+     * @return CreateTransactionInterface
      */
-    public function withLanguagePreference(string $preferedLanguage): self;
+    public function withLanguagePreference(string $preferredLanguage): self;
 
     /**
      * @param string $reportUrl
+     * @return CreateTransactionInterface
      */
     public function withReportUrl(string $reportUrl): self;
 
     /**
-     * @param string $cancelURL
+     * @param string $cancelUrl
+     * @return CreateTransactionInterface
      */
     public function withCancelUrl(string $cancelUrl): self;
 
@@ -89,10 +94,10 @@ interface CreateTransactionInterface extends RequestInterface
     public function withProductType(int $productTypeId): self;
 
     /**
-     * @param InvoiceLine $invoiceLine
+     * @param InvoiceLine[]|array $invoiceLines
      * @return CreateTransactionInterface
      */
-    public function withInvoiceLines(InvoiceLine $invoiceLine): self;
+    public function withInvoiceLines(array $invoiceLines): self;
 
     /**
      * @param TransactionClient $client

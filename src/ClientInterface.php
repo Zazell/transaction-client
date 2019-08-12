@@ -13,12 +13,14 @@ use Digiwallet\Packages\Transaction\Client\Response\CheckTransactionInterface as
 interface ClientInterface extends \GuzzleHttp\ClientInterface
 {
     /**
-     * @param CreateTransactionRequest $createTransactionRequest
+     * @param CreateTransactionRequest $request
+     * @return CreateTransactionResponse
      */
-    public function createTransaction(CreateTransactionRequest $createTransactionRequest): CreateTransactionResponse;
+    public function createTransaction(CreateTransactionRequest $request): CreateTransactionResponse;
 
     /**
-     * @param CheckTransactionRequest $checkTransactionRequest
+     * @param CheckTransactionRequest $request
+     * @return CheckTransactionResponse
      */
-    public function checkTransaction(CheckTransactionRequest $checkTransactionRequest): CheckTransactionResponse;
+    public function checkTransaction(CheckTransactionRequest $request): CheckTransactionResponse;
 }
