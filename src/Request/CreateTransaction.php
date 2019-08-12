@@ -233,11 +233,11 @@ class CreateTransaction extends Request implements CreateTransactionInterface
                 return false;
         }
 
-        if ($this->options['enabledSofort'] && empty($this->options['sofortProductTypeId'])) {
+        if (in_array(Payment::SOFORT, $this->options['paymentMethods']) && empty($this->options['sofortProductTypeId'])) {
             return false;
         }
 
-        if ($this->options['enabledAfterPay'] && (empty($this->invoiceLines) || $this->options['amountChangeable'])) {
+        if (in_array(Payment::AFTERPAY, $this->options['paymentMethods']) && (empty($this->invoiceLines) || $this->options['amountChangeable'])) {
             return false;
         }
 
@@ -360,12 +360,12 @@ class CreateTransaction extends Request implements CreateTransactionInterface
 
     /**
      * @param string $option
-     * @param string $value
+     * @param $value
      * @return CreateTransaction
      */
-    private function withOption(string $option, string $value): self
+    private function withOption(string $option, $value): self
     {
-        if (isset($this->options[$option]) && $this->options[$option] !== $value) {
+        if (array_key_exists($option, $this->options) && $this->options[$option] !== $value) {
             $this->options[$option] = $value;
         }
 

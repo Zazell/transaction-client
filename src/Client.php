@@ -16,11 +16,9 @@ class Client extends GuzzleClient implements ClientInterface
     /**
      * Client constructor.
      */
-    public function __construct()
+    public function __construct($transactionClientDomain)
     {
-        parent::__construct([
-            'base_uri' => 'https://api.digiwallet.nl'
-        ]);
+        parent::__construct(['base_uri' => $transactionClientDomain]);
     }
 
     /**
