@@ -14,19 +14,13 @@ use Psr\Http\Message\ResponseInterface as Response;
 class Client extends GuzzleClient implements ClientInterface
 {
     /**
-     * @var string
-     */
-    private $bearer;
-
-    /**
      * Client constructor.
-     * @param string $bearer
-     * @param string $url
      */
-    public function __construct(string $bearer, string $url)
+    public function __construct()
     {
-        parent::__construct(['base_uri' => $url]);
-        $this->bearer = $bearer;
+        parent::__construct([
+            'base_uri' => 'https://api.digiwallet.nl'
+        ]);
     }
 
     /**
@@ -36,11 +30,7 @@ class Client extends GuzzleClient implements ClientInterface
      */
     public function createTransaction(CreateTransactionRequest $createTransaction): Response
     {
-        $request = $createTransaction
-            ->withAddedHeader('Authorization', 'Bearer ' . $this->bearer)
-            ->withAddedHeader('Content-Type', 'application/json');
-
-        return $this->send($request);
+        return $this->send($createTransaction);
     }
 
     /**
@@ -50,10 +40,6 @@ class Client extends GuzzleClient implements ClientInterface
      */
     public function checkTransaction(CheckTransactionRequest $checkTransaction): Response
     {
-        $request = $checkTransaction
-            ->withAddedHeader('Authorization', 'Bearer ' . $this->bearer)
-            ->withAddedHeader('Content-Type', 'application/json');
-
-        return $this->send($request);
+        return $this->send($checkTransaction);
     }
 }

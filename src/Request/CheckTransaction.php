@@ -2,9 +2,10 @@
 namespace Digiwallet\Packages\Transaction\Client\Request;
 
 use Digiwallet\Packages\Transaction\Client\ClientInterface as TransactionClient;
-use Digiwallet\Packages\Transaction\Client\Response\CheckTransactionInterface as CheckTransactionResponseInterface;
-use GuzzleHttp\Psr7\Request;
 use Digiwallet\Packages\Transaction\Client\Response\CheckTransaction as CheckTransactionResponse;
+use Digiwallet\Packages\Transaction\Client\Response\CheckTransactionInterface as CheckTransactionResponseInterface;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Psr7\Request;
 
 /**
  * Class CheckTransaction
@@ -12,66 +13,77 @@ use Digiwallet\Packages\Transaction\Client\Response\CheckTransaction as CheckTra
  */
 class CheckTransaction extends Request implements CheckTransactionInterface
 {
-    private const DIGIWALLET_PAY_CHECK_TRANSACTION_PATH = '/unified/transaction/%d/%d';
+    private const DIGIWALLET_PAY_CHECK_TRANSACTION_PATH = '/unified/transaction';
     private const DIGIWALLET_PAY_CHECK_TRANSACTION_HTTP_METHOD = 'GET';
 
-    private $test;
+    private $test = 0;
     private $outletId;
     private $transactionId;
+    private $bearer;
 
     /**
      * CheckTransaction constructor.
-     * @param array $options
      */
-    public function __construct(array $options = [])
+    public function __construct()
     {
-        $this->withOptions($options);
-
+        parent::__construct(self::DIGIWALLET_PAY_CHECK_TRANSACTION_HTTP_METHOD, '');
     }
 
     /**
-     * @param array $options
+     * @return CheckTransactionInterface
      */
-    private function withOptions(array $options): void
-    {
-        foreach ($options as $variable => $option) {
-            $this->withOption($variable, $option);
-        }
-    }
-
-    /**
-     * @param string $variable
-     * @param string $value
-     */
-    private function withOption(string $variable, string $value): void
-    {
-        if (isset($this->options[$variable]) && $this->options[$variable] !== $value) {
-            $this->options[$variable] = $value;
-        }
-    }
-
     public function enableTestMode(): CheckTransactionInterface
     {
+        $this->test = 1;
         return $this;
     }
 
+    /**
+     * @param int $outletId
+     * @return CheckTransactionInterface
+     */
     public function withOutlet(int $outletId): CheckTransactionInterface
     {
+        $this->outletId = $outletId;
         return $this;
     }
 
+    /**
+     * @param string $bearer
+     * @return CheckTransactionInterface
+     */
+    public function withBearer(string $bearer): CheckTransactionInterface
+    {
+        $this->bearer = $bearer;
+        return $this;
+    }
+
+    /**
+     * @param int $transactionId
+     * @return CheckTransactionInterface
+     */
     public function withTransactionId(int $transactionId): CheckTransactionInterface
     {
+        $this->transactionId = $transactionId;
         return $this;
     }
 
+    /**
+     * @param TransactionClient $client
+     * @return CheckTransactionResponseInterface
+     * @throws GuzzleException
+     */
     public function sendWith(TransactionClient $client): CheckTransactionResponseInterface
     {
-        parent::__construct(
-            self::DIGIWALLET_PAY_CHECK_TRANSACTION_HTTP_METHOD,
-            sprintf(self::DIGIWALLET_PAY_CHECK_TRANSACTION_PATH, $this->outletId, $this->transactionId)
-        );
-        $response = $client->send($this);
+        $uri = $this->getUri();
+        $uri->withPath(self::DIGIWALLET_PAY_CHECK_TRANSACTION_PATH . implode('/', [$this->transactionId, $this->outletId, $this->test]));
+
+        $request = $this
+            ->withUri($uri)
+            ->withAddedHeader('Authorization', 'Bearer ' . $this->bearer)
+            ->withAddedHeader('Content-Type', 'application/json');
+
+        $response = $client->checkTransaction($request);
 
         return new CheckTransactionResponse($response);
     }

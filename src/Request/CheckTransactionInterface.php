@@ -17,11 +17,19 @@ interface CheckTransactionInterface extends RequestInterface
     public function enableTestMode(): self;
 
     /**
+     * @param int $outletId
      * @return CheckTransactionInterface
      */
     public function withOutlet(int $outletId): self;
 
     /**
+     * @param string $bearer
+     * @return CheckTransactionInterface
+     */
+    public function withBearer(string $bearer): self;
+
+    /**
+     * @param int $transactionId
      * @return CheckTransactionInterface
      */
     public function withTransactionId(int $transactionId): self;

@@ -54,6 +54,11 @@ class CreateTransaction extends Request implements CreateTransactionInterface
     private $client;
 
     /**
+     * @var string
+     */
+    private $bearer;
+
+    /**
      * CreateTransaction constructor.
      * @param TransactionClient $client
      * @param array $options
@@ -206,6 +211,16 @@ class CreateTransaction extends Request implements CreateTransactionInterface
     }
 
     /**
+     * @param string $bearer
+     * @return CreateTransactionInterface
+     */
+    public function withBearer(string $bearer): CreateTransactionInterface
+    {
+        $this->bearer = $bearer;
+        return $this;
+    }
+
+    /**
      * @return bool
      */
     public function validate(): bool
@@ -240,7 +255,11 @@ class CreateTransaction extends Request implements CreateTransactionInterface
             throw new BadMethodCallException('Missing required options');
         }
 
-        $request = $this->buildRequest();
+        $request = $this
+            ->buildRequest()
+            ->withAddedHeader('Authorization', 'Bearer ' . $this->bearer)
+            ->withAddedHeader('Content-Type', 'application/json');
+
         $response = $this->client->createTransaction($request);
 
         return new CreateTransactionResponse($response);

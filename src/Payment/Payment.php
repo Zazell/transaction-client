@@ -7,6 +7,14 @@ namespace Digiwallet\Packages\Transaction\Client\Payment;
  */
 class Payment
 {
+    public const AFTERPAY = 'AFP';
+    public const CREDIT_CARD = 'CRC';
+    public const IDEAL = 'IDE';
+    public const BANCONTACT = 'MRC';
+    public const PAY_SAFE_CARD = 'PSC';
+    public const PAY_PAL = 'PYP';
+    public const SOFORT = 'SOF';
+
     public const METHODS = [
         self::AFTERPAY,
         self::CREDIT_CARD,
@@ -16,12 +24,4 @@ class Payment
         self::PAY_PAL,
         self::SOFORT,
     ];
-
-    public const AFTERPAY = 'AFP';
-    public const CREDIT_CARD = 'CRC';
-    public const IDEAL = 'IDE';
-    public const BANCONTACT = 'MRC';
-    public const PAY_SAFE_CARD = 'PSC';
-    public const PAY_PAL = 'PYP';
-    public const SOFORT = 'SOF';
 }

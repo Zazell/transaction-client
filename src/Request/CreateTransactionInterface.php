@@ -55,6 +55,12 @@ interface CreateTransactionInterface extends RequestInterface
     public function withOutlet(int $outletId): self;
 
     /**
+     * @param string $bearer
+     * @return CreateTransactionInterface
+     */
+    public function withBearer(string $bearer): self;
+
+    /**
      * @param string $preferredLanguage
      * @return CreateTransactionInterface
      */
