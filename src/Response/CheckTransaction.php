@@ -71,8 +71,6 @@ class CheckTransaction implements CheckTransactionInterface
         $this->consumerCardNumberMasked = $data['consumerCardNumberMasked'] ?? null;
         $this->consumerCardExpiryDate = $data['consumerCardExpiryDate'] ?? null;
         $this->consumerCardBrand = $data['consumerCardBrand'] ?? null;
-
-        return $this;
     }
 
     /**
