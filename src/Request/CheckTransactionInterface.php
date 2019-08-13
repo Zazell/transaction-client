@@ -35,8 +35,7 @@ interface CheckTransactionInterface extends RequestInterface
     public function withTransactionId(int $transactionId): self;
 
     /**
-     * @param TransactionClient $client
      * @return CheckTransactionResponseInterface
      */
-    public function sendWith(TransactionClient $client): CheckTransactionResponseInterface;
+    public function send(): CheckTransactionResponseInterface;
 }

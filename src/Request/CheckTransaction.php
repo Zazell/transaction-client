@@ -17,15 +17,34 @@ class CheckTransaction extends Request implements CheckTransactionInterface
     private const DIGIWALLET_PAY_CHECK_TRANSACTION_HTTP_METHOD = 'GET';
 
     private $test = 0;
+
+    /**
+     * @var int
+     */
     private $outletId;
+
+    /**
+     * @var int
+     */
     private $transactionId;
+
+    /**
+     * @var string
+     */
     private $bearer;
 
     /**
-     * CheckTransaction constructor.
+     * @var TransactionClient
      */
-    public function __construct()
+    private $client;
+
+    /**
+     * CheckTransaction constructor.
+     * @param TransactionClient $client
+     */
+    public function __construct(TransactionClient $client)
     {
+        $this->client = $client;
         parent::__construct(self::DIGIWALLET_PAY_CHECK_TRANSACTION_HTTP_METHOD, '');
     }
 
@@ -69,11 +88,10 @@ class CheckTransaction extends Request implements CheckTransactionInterface
     }
 
     /**
-     * @param TransactionClient $client
      * @return CheckTransactionResponseInterface
      * @throws GuzzleException
      */
-    public function sendWith(TransactionClient $client): CheckTransactionResponseInterface
+    public function send(): CheckTransactionResponseInterface
     {
         $uri = $this->getUri();
         $uri->withPath(self::DIGIWALLET_PAY_CHECK_TRANSACTION_PATH . implode('/', [$this->transactionId, $this->outletId, $this->test]));
@@ -83,7 +101,7 @@ class CheckTransaction extends Request implements CheckTransactionInterface
             ->withAddedHeader('Authorization', 'Bearer ' . $this->bearer)
             ->withAddedHeader('Content-Type', 'application/json');
 
-        $response = $client->checkTransaction($request);
+        $response = $this->client->checkTransaction($request);
 
         return new CheckTransactionResponse($response);
     }
