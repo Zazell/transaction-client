@@ -61,6 +61,12 @@ interface CreateTransactionInterface extends RequestInterface
     public function withBearer(string $bearer): self;
 
     /**
+     * @param int $environment
+     * @return CreateTransactionInterface
+     */
+    public function withEnvironment(int $environment): self;
+
+    /**
      * @param string $preferredLanguage
      * @return CreateTransactionInterface
      */

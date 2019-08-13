@@ -20,6 +20,10 @@ class CreateTransaction extends Request implements CreateTransactionInterface
     private const DIGIWALLET_PAY_CREATE_TRANSACTION_PATH = '/unified/transaction';
     private const DIGIWALLET_PAY_CREATE_TRANSACTION_HTTP_METHOD = 'POST';
 
+    private const DIGIWALLET_PAY_PROD_ENVIRONMENT = 0;
+    private const DIGIWALLET_PAY_TEST_PANEL_ENVIRONMENT = 1;
+    private const DIGIWALLET_PAY_ACQUIRER_PREPROD_ENVIRONMENT = 2;
+
     /**
      * @var array
      */
@@ -39,8 +43,8 @@ class CreateTransaction extends Request implements CreateTransactionInterface
         'inputAmountMin' => null,
         'inputAmountMax' => null,
         'paymentMethods' => [],
-        'test' => 0,
-        'acquirerPreprodTest' => 0
+        'environment' => 0,
+        'acquirerPreprodMode' => 0
     ];
 
     /**
@@ -221,6 +225,23 @@ class CreateTransaction extends Request implements CreateTransactionInterface
     }
 
     /**
+     * @param int $environment
+     * @return CreateTransactionInterface
+     */
+    public function withEnvironment(int $environment): CreateTransactionInterface
+    {
+        if ($environment === self::DIGIWALLET_PAY_TEST_PANEL_ENVIRONMENT) {
+            return $this->withOption('environment', $environment);
+        }
+
+        if ($environment === self::DIGIWALLET_PAY_ACQUIRER_PREPROD_ENVIRONMENT) {
+            return $this->withOption('environment', $environment);
+        }
+
+        return $this->withOption('environment', self::DIGIWALLET_PAY_PROD_ENVIRONMENT);
+    }
+
+    /**
      * @return bool
      */
     public function validate(): bool
@@ -233,11 +254,11 @@ class CreateTransaction extends Request implements CreateTransactionInterface
                 return false;
         }
 
-        if (in_array(Payment::SOFORT, $this->options['paymentMethods']) && empty($this->options['sofortProductTypeId'])) {
+        if (empty($this->options['sofortProductTypeId']) && in_array(Payment::SOFORT, $this->options['paymentMethods'], true)) {
             return false;
         }
 
-        if (in_array(Payment::AFTERPAY, $this->options['paymentMethods']) && (empty($this->invoiceLines) || $this->options['amountChangeable'])) {
+        if ((empty($this->invoiceLines) || $this->options['amountChangeable']) && in_array(Payment::AFTERPAY, $this->options['paymentMethods'], true)) {
             return false;
         }
 
