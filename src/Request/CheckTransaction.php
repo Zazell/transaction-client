@@ -45,7 +45,6 @@ class CheckTransaction extends Request implements CheckTransactionInterface
     public function __construct(TransactionClient $client)
     {
         $this->client = $client;
-        parent::__construct(self::DIGIWALLET_PAY_CHECK_TRANSACTION_HTTP_METHOD, '');
     }
 
     /**
@@ -93,11 +92,12 @@ class CheckTransaction extends Request implements CheckTransactionInterface
      */
     public function send(): CheckTransactionResponseInterface
     {
-        $uri = $this->getUri();
-        $uri->withPath(self::DIGIWALLET_PAY_CHECK_TRANSACTION_PATH . implode('/', [$this->transactionId, $this->outletId, $this->test]));
+        parent::__construct(
+            self::DIGIWALLET_PAY_CHECK_TRANSACTION_HTTP_METHOD,
+            self::DIGIWALLET_PAY_CHECK_TRANSACTION_PATH . '/' . implode('/', [$this->outletId, $this->transactionId, $this->test])
+        );
 
         $request = $this
-            ->withUri($uri)
             ->withAddedHeader('Authorization', 'Bearer ' . $this->bearer)
             ->withAddedHeader('Content-Type', 'application/json');
 

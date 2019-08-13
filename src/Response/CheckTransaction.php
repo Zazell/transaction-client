@@ -144,6 +144,4 @@ class CheckTransaction implements CheckTransactionInterface
     {
         return $this->consumerCardBrand;
     }
-
-
 }
