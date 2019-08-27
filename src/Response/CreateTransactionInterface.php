@@ -1,4 +1,5 @@
 <?php
+
 namespace Digiwallet\Packages\Transaction\Client\Response;
 
 /**
@@ -26,5 +27,15 @@ interface CreateTransactionInterface
      * @return string
      */
     public function launchUrl(): string;
+
+    /**
+     * @return string
+     */
+    public function response(): string;
+
+    /**
+     * @return string
+     */
+    public function transactionKey(): string;
 
 }

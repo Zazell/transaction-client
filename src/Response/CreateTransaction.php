@@ -1,4 +1,5 @@
 <?php
+
 namespace Digiwallet\Packages\Transaction\Client\Response;
 
 use Psr\Http\Message\ResponseInterface;
@@ -30,6 +31,14 @@ class CreateTransaction implements CreateTransactionInterface
     private $launchUrl;
 
     /**
+     * @var string
+     */
+    private $transactionKey;
+
+
+    private $response;
+
+    /**
      * CreateTransaction constructor.
      * @param ResponseInterface $response
      */
@@ -41,6 +50,8 @@ class CreateTransaction implements CreateTransactionInterface
         $this->message = $data['message'];
         $this->transactionId = $data['transactionID'];
         $this->launchUrl = $data['launchURL'];
+        $this->transactionKey = $data['transactionKey'];
+        $this->response = $data;
     }
 
     /**
@@ -73,5 +84,21 @@ class CreateTransaction implements CreateTransactionInterface
     public function launchUrl(): string
     {
         return $this->launchUrl;
+    }
+
+    /**
+     * @return string
+     */
+    public function response(): string
+    {
+        return $this->response;
+    }
+
+    /**
+     * @return string
+     */
+    public function transactionKey(): string
+    {
+        return $this->transactionKey;
     }
 }
