@@ -89,7 +89,7 @@ class CreateTransaction implements CreateTransactionInterface
     /**
      * @return string
      */
-    public function response(): string
+    public function response(): array
     {
         return $this->response;
     }
