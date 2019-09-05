@@ -69,4 +69,9 @@ interface CheckTransactionInterface
      * @return string|null
      */
     public function consumerCardBrand(): ?string;
+
+    /**
+     * @return string(3)|null
+     */
+    public function getPaymentMethodCode(): string;
 }

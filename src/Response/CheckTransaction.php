@@ -69,6 +69,10 @@ class CheckTransaction implements CheckTransactionInterface
      * @var string
      */
     private $consumerCardBrand;
+    /**
+     * @var string(3)
+     */
+    private $paymentMethodCode;
 
     /**
      * CreateTransaction constructor.
@@ -83,6 +87,7 @@ class CheckTransaction implements CheckTransactionInterface
         $this->transactionStatus = $data['transactionStatus'];
         $this->externalTransactionID = $data['externalTransactionID'] ?? null;
         $this->externalPaymentReference = $data['externalPaymentReference'] ?? null;
+        $this->paymentMethodCode = $data['paymentMethodCode'] ?? null;
         $this->paidAmount = $data['paidAmount'] ?? null;
         $this->consumerName = $data['consumerName'] ?? null;
         $this->consumerIBAN = $data['consumerIBAN'] ?? null;
@@ -188,5 +193,13 @@ class CheckTransaction implements CheckTransactionInterface
     public function getExternalPaymentReference(): string
     {
         return $this->externalPaymentReference;
+    }
+
+    /**
+     * @return string(3)
+     */
+    public function getPaymentMethodCode(): string
+    {
+        return $this->paymentMethodCode;
     }
 }
