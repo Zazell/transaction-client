@@ -1,4 +1,5 @@
 <?php
+
 namespace Digiwallet\Packages\Transaction\Client\Response;
 
 use Psr\Http\Message\ResponseInterface;
@@ -18,6 +19,21 @@ class CheckTransaction implements CheckTransactionInterface
      * @var string
      */
     private $transactionStatus;
+
+    /**
+     * @var int
+     */
+    private $externalTransactionID;
+
+    /**
+     * @var int
+     */
+    private $paidAmount;
+
+    /**
+     * @var string
+     */
+    private $externalPaymentReference;
 
     /**
      * @var string
@@ -65,6 +81,9 @@ class CheckTransaction implements CheckTransactionInterface
         $this->status = $data['status'];
         $this->message = $data['message'];
         $this->transactionStatus = $data['transactionStatus'];
+        $this->externalTransactionID = $data['externalTransactionID'] ?? null;
+        $this->externalPaymentReference = $data['externalPaymentReference'] ?? null;
+        $this->paidAmount = $data['paidAmount'] ?? null;
         $this->consumerName = $data['consumerName'] ?? null;
         $this->consumerIBAN = $data['consumerIBAN'] ?? null;
         $this->consumerCountryCode = $data['consumerCountryCode'] ?? null;
@@ -143,5 +162,31 @@ class CheckTransaction implements CheckTransactionInterface
     public function consumerCardBrand(): ?string
     {
         return $this->consumerCardBrand;
+    }
+
+    /**
+     * @return int
+     */
+    public function getExternalTransactionID(): int
+    {
+        return $this->externalTransactionID;
+    }
+
+    /**
+     * @return int
+     *
+     * the amount paid in cents
+     */
+    public function getPaidAmount(): int
+    {
+        return $this->paidAmount;
+    }
+
+    /**
+     * @return string
+     */
+    public function getExternalPaymentReference(): string
+    {
+        return $this->externalPaymentReference;
     }
 }

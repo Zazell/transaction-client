@@ -1,4 +1,5 @@
 <?php
+
 namespace Digiwallet\Packages\Transaction\Client\Response;
 
 /**
@@ -21,6 +22,23 @@ interface CheckTransactionInterface
      * @return string
      */
     public function getMessage(): string;
+
+    /**
+     * @return int
+     */
+    public function getExternalTransactionID(): int;
+
+    /**
+     * @return int
+     *
+     * the amount paid in cents
+     */
+    public function getPaidAmount(): int;
+
+    /**
+     * @return string
+     */
+    public function getExternalPaymentReference(): string ;
 
     /**
      * @return string|null
