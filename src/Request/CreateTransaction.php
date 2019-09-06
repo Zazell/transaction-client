@@ -1,4 +1,5 @@
 <?php
+
 namespace Digiwallet\Packages\Transaction\Client\Request;
 
 use BadMethodCallException;
@@ -44,6 +45,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
         'inputAmountMax' => null,
         'paymentMethods' => [],
         'environment' => 0,
+        'test' => 0,
         'acquirerPreprodMode' => 0
     ];
 
@@ -93,7 +95,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
      */
     public function withLanguagePreference(string $preferredLanguage): CreateTransactionInterface
     {
-        return $this->withOption('preferredLanguage',  $preferredLanguage);
+        return $this->withOption('preferredLanguage', $preferredLanguage);
     }
 
     /**
@@ -103,7 +105,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
     public function withConsumerEmail(string $consumerEmail): CreateTransactionInterface
     {
 
-        return $this->withOption('consumerEmail',  $consumerEmail);
+        return $this->withOption('consumerEmail', $consumerEmail);
     }
 
     /**
@@ -231,14 +233,14 @@ class CreateTransaction extends Request implements CreateTransactionInterface
     public function withEnvironment(int $environment): CreateTransactionInterface
     {
         if ($environment === self::DIGIWALLET_PAY_TEST_PANEL_ENVIRONMENT) {
-            return $this->withOption('environment', $environment);
+            return $this->withOption('test', $environment);
         }
 
         if ($environment === self::DIGIWALLET_PAY_ACQUIRER_PREPROD_ENVIRONMENT) {
-            return $this->withOption('environment', $environment);
+            return $this->withOption('acquirerPreprodTest', 1);
         }
 
-        return $this->withOption('environment', self::DIGIWALLET_PAY_PROD_ENVIRONMENT);
+        return $this->withOption('test', self::DIGIWALLET_PAY_PROD_ENVIRONMENT);
     }
 
     /**
@@ -254,11 +256,13 @@ class CreateTransaction extends Request implements CreateTransactionInterface
                 return false;
         }
 
-        if (empty($this->options['sofortProductTypeId']) && in_array(Payment::SOFORT, $this->options['paymentMethods'], true)) {
+        if (empty($this->options['sofortProductTypeId']) && in_array(Payment::SOFORT, $this->options['paymentMethods'],
+                true)) {
             return false;
         }
 
-        if ((empty($this->invoiceLines) || $this->options['amountChangeable']) && in_array(Payment::AFTERPAY, $this->options['paymentMethods'], true)) {
+        if ((empty($this->invoiceLines) || $this->options['amountChangeable']) && in_array(Payment::AFTERPAY,
+                $this->options['paymentMethods'], true)) {
             return false;
         }
 
@@ -336,6 +340,14 @@ class CreateTransaction extends Request implements CreateTransactionInterface
 
         if ($this->options['sofortProductTypeId'] !== null) {
             $body['sofortProductTypeID'] = $this->options['sofortProductTypeId'];
+        }
+
+        if ($this->options['test'] !== null) {
+            $body['test'] = $this->options['test'];
+        }
+
+        if ($this->options['acquirerPreprodTest'] !== null) {
+            $body['acquirerPreprodTest'] = $this->options['acquirerPreprodTest'];
         }
 
         if (!empty($this->invoiceLines)) {
