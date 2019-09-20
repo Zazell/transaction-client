@@ -342,7 +342,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
             $body['sofortProductTypeID'] = $this->options['sofortProductTypeId'];
         }
 
-        if ($this->options['test'] !== null) {
+        if ($this->options['test'] !== null || $this->options['envionment'] === 1) {
             $body['test'] = $this->options['test'];
         }
 

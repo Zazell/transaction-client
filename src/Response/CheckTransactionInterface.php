@@ -38,7 +38,7 @@ interface CheckTransactionInterface
     /**
      * @return string
      */
-    public function getExternalPaymentReference(): string ;
+    public function getExternalPaymentReference(): ?string ;
 
     /**
      * @return string|null

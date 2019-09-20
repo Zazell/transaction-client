@@ -190,7 +190,7 @@ class CheckTransaction implements CheckTransactionInterface
     /**
      * @return string
      */
-    public function getExternalPaymentReference(): string
+    public function getExternalPaymentReference(): ?string
     {
         return $this->externalPaymentReference;
     }
