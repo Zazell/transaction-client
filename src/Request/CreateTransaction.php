@@ -46,8 +46,10 @@ class CreateTransaction extends Request implements CreateTransactionInterface
         'paymentMethods' => [],
         'environment' => 0,
         'test' => 0,
-        'acquirerPreprodMode' => 0
+        'acquirerPreprodMode' => 0,
+        'tariffGroup' => null
     ];
+    private $headers = [];
 
     /**
      * @var array
@@ -58,11 +60,6 @@ class CreateTransaction extends Request implements CreateTransactionInterface
      * @var TransactionClient
      */
     private $client;
-
-    /**
-     * @var string
-     */
-    private $bearer;
 
     /**
      * CreateTransaction constructor.
@@ -133,6 +130,15 @@ class CreateTransaction extends Request implements CreateTransactionInterface
     public function withReturnUrl(string $returnUrl): CreateTransactionInterface
     {
         return $this->withOption('returnUrl', $returnUrl);
+    }
+
+    /**
+     * @param string $paymentMethod
+     * @return CreateTransactionInterface
+     */
+    public function withTariffGroup(string $tariffGroup): CreateTransactionInterface
+    {
+        return $this->withOption('tariffGroup', $tariffGroup);
     }
 
     /**
@@ -222,7 +228,20 @@ class CreateTransaction extends Request implements CreateTransactionInterface
      */
     public function withBearer(string $bearer): CreateTransactionInterface
     {
-        $this->bearer = $bearer;
+        $this->headers['Authorization'] = 'Bearer ' . $this->bearer;
+        return $this;
+    }
+
+    /**
+     * Add an extra header to the request
+     *
+     * @param string $header
+     * @param string $value
+     * @return CreateTransactionInterface
+     */
+    public function withHeader(string $header, string $value): CreateTransactionInterface
+    {
+        $this->headers[$header] = $value;
         return $this;
     }
 
@@ -280,10 +299,13 @@ class CreateTransaction extends Request implements CreateTransactionInterface
             throw new BadMethodCallException('Missing required options');
         }
 
-        $request = $this
-            ->buildRequest()
-            ->withAddedHeader('Authorization', 'Bearer ' . $this->bearer)
-            ->withAddedHeader('Content-Type', 'application/json');
+        $request = $this->buildRequest();
+//            ->withAddedHeader('Authorization', 'Bearer ' . $this->bearer)
+        $request->withAddedHeader('Content-Type', 'application/json');
+
+        foreach ($this->headers as $header => $value) {
+            $request->withAddedHeader($header, $value);
+        }
 
         $response = $this->client->createTransaction($request);
 

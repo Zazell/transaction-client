@@ -61,6 +61,13 @@ interface CreateTransactionInterface extends RequestInterface
     public function withBearer(string $bearer): self;
 
     /**
+     * @param string $header
+     * @param string $value
+     * @return CreateTransactionInterface
+     */
+    public function withHeader(string $header, string $value): CreateTransactionInterface;
+
+    /**
      * @param int $environment
      * @return CreateTransactionInterface
      */
@@ -83,6 +90,12 @@ interface CreateTransactionInterface extends RequestInterface
      * @return CreateTransactionInterface
      */
     public function withCancelUrl(string $cancelUrl): self;
+
+    /**
+     * @param string $tariffGroup
+     * @return CreateTransactionInterface
+     */
+    public function withTariffGroup(string $tariffGroup): CreateTransactionInterface;
 
     /**
      * @param string $returnUrl
