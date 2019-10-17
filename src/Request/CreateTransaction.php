@@ -300,11 +300,10 @@ class CreateTransaction extends Request implements CreateTransactionInterface
         }
 
         $request = $this->buildRequest();
-//            ->withAddedHeader('Authorization', 'Bearer ' . $this->bearer)
-        $request->withAddedHeader('Content-Type', 'application/json');
+        $request = $request->withAddedHeader('Content-Type', 'application/json');
 
         foreach ($this->headers as $header => $value) {
-            $request->withAddedHeader($header, $value);
+            $request = $request->withAddedHeader($header, $value);
         }
 
         $response = $this->client->createTransaction($request);
