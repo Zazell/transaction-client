@@ -65,7 +65,7 @@ interface CreateTransactionInterface extends RequestInterface
      * @param string $value
      * @return CreateTransactionInterface
      */
-    public function withHeader(string $header, string $value): CreateTransactionInterface;
+    public function withHeaderValue(string $header, string $value): CreateTransactionInterface;
 
     /**
      * @param int $environment

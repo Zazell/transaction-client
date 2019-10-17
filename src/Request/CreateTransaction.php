@@ -239,7 +239,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
      * @param string $value
      * @return CreateTransactionInterface
      */
-    public function withHeader(string $header, string $value): CreateTransactionInterface
+    public function withHeaderValue(string $header, string $value): CreateTransactionInterface
     {
         $this->headers[$header] = $value;
         return $this;
