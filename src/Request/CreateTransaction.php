@@ -372,6 +372,10 @@ class CreateTransaction extends Request implements CreateTransactionInterface
             $body['acquirerPreprodTest'] = $this->options['acquirerPreprodTest'];
         }
 
+        if ($this->options['tariffGroup'] !== null) {
+            $body['tariffGroup'] = $this->options['tariffGroup'];
+        }
+
         if (!empty($this->invoiceLines)) {
             $body['afterpayInvoiceLines'] = $this->invoiceLines;
         }
