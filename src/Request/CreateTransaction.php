@@ -228,7 +228,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
      */
     public function withBearer(string $bearer): CreateTransactionInterface
     {
-        $this->headers['Authorization'] = 'Bearer ' . $this->bearer;
+        $this->headers['Authorization'] = 'Bearer ' . $bearer;
         return $this;
     }
 
