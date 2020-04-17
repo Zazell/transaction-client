@@ -326,33 +326,32 @@ class CreateTransaction extends Request implements CreateTransactionInterface
             ]
         ];
 
-        if (array_key_exists('consumerEmail', $this->options)) {
+        if ($this->options['consumerEmail'] !== null) {
             $body['consumerEmail'] = $this->options['consumerEmail'];
         }
 
-        if (array_key_exists('preferredLanguage', $this->options)) {
+        if ($this->options['preferredLanguage'] !== null) {
             $body['suggestedLanguage'] = $this->options['preferredLanguage'];
         }
 
-        if (array_key_exists('reportUrl', $this->options)) {
+        if ($this->options['reportUrl'] !== null) {
             $body['reportURL'] = $this->options['reportUrl'];
         }
 
-        if (array_key_exists('cancelUrl', $this->options)) {
+        if ($this->options['cancelUrl'] !== null) {
             $body['cancelURL'] = $this->options['cancelUrl'];
         }
 
-        if (array_key_exists('consumerIp', $this->options)) {
+        if ($this->options['consumerIp'] !== null) {
             $body['consumerIP'] = $this->options['consumerIp'];
         }
 
-        if (array_key_exists('amountChangeable', $this->options) && array_key_exists('inputAmountMin',
-                $this->options) && array_key_exists('inputAmountMax', $this->options) && (bool)$this->options['amountChangeable'] === true) {
+        if ($this->options['amountChangeable']) {
             $body['paymentOptions']['inputAmountMin'] = $this->options['inputAmountMin'];
             $body['paymentOptions']['inputAmountMax'] = $this->options['inputAmountMax'];
         }
 
-        if (!array_key_exists('amountChangeable', $this->options) || !$this->options['amountChangeable']) {
+        if (!$this->options['amountChangeable']) {
             $body['paymentOptions']['inputAmount'] = $this->options['inputAmount'];
         }
 
@@ -360,7 +359,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
             $body['paymentOptions']['paymentMethods'] = $this->options['paymentMethods'];
         }
 
-        if (array_key_exists('sofortProductTypeId', $this->options)) {
+        if ($this->options['sofortProductTypeId'] !== null) {
             $body['sofortProductTypeID'] = $this->options['sofortProductTypeId'];
         }
 
@@ -368,11 +367,11 @@ class CreateTransaction extends Request implements CreateTransactionInterface
             $body['test'] = $this->options['test'];
         }
 
-        if (array_key_exists('acquirerPreprodTest', $this->options)) {
+        if ($this->options['acquirerPreprodTest'] !== null) {
             $body['acquirerPreprodTest'] = $this->options['acquirerPreprodTest'];
         }
 
-        if (array_key_exists('tariffGroup', $this->options)) {
+        if ($this->options['tariffGroup'] !== null) {
             $body['tariffGroup'] = $this->options['tariffGroup'];
         }
 
