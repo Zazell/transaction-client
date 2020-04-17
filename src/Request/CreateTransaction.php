@@ -46,7 +46,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
         'paymentMethods' => [],
         'environment' => 0,
         'test' => 0,
-        'acquirerPreprodMode' => 0,
+        'acquirerPreprodTest' => 0,
         'tariffGroup' => null
     ];
     private $headers = [];
