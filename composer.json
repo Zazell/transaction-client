@@ -1,5 +1,5 @@
 {
-    "name":"digiwallet/transaction-client",
+    "name":"zazell/digiwallet-transaction-client",
     "type": "library",
     "description": "DigiWallet Transaction Client",
     "license": "proprietary",
@@ -8,7 +8,7 @@
     "require": {
         "php": ">7.1",
         "ext-json": "*",
-        "guzzlehttp/guzzle": "^6.3"
+        "guzzlehttp/guzzle": "^7.3"
     },
     "require-dev": {
         "phpunit/phpunit": "^8"
