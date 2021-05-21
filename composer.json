@@ -1,5 +1,5 @@
 {
-    "name":"zazell/digiwallet-transaction-client",
+    "name":"zazell/transaction-client",
     "type": "library",
     "description": "DigiWallet Transaction Client",
     "license": "proprietary",
