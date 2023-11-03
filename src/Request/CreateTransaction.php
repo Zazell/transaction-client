@@ -10,7 +10,6 @@ use Digiwallet\Packages\Transaction\Client\Response\CreateTransaction as CreateT
 use Digiwallet\Packages\Transaction\Client\Response\CreateTransactionInterface as CreateTransactionResponseInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Request;
-use function GuzzleHttp\Psr7\stream_for;
 
 /**
  * Class CreateTransaction
@@ -379,7 +378,7 @@ class CreateTransaction extends Request implements CreateTransactionInterface
             $body['afterpayInvoiceLines'] = $this->invoiceLines;
         }
 
-        $stream = stream_for(json_encode($body));
+        $stream = \GuzzleHttp\Psr7\Utils::streamFor(json_encode($body));
 
         return $this->withBody($stream);
     }
